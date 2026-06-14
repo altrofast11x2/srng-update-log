@@ -1,0 +1,350 @@
+---
+import Converter from "../components/Converter.tsx";
+
+// 게임 메인 썸네일을 빌드 시점에 받아와 배경으로 사용 (place 15532962292 → universe 5361032378)
+const UNIVERSE_ID = 5361032378;
+const FALLBACK_BG =
+	"https://tr.rbxcdn.com/180DAY-885a73fa9cc55305b751df1d7a8fcc31/768/432/Image/Png/noFilter";
+
+let bgImage = FALLBACK_BG;
+try {
+	const res = await fetch(
+		`https://thumbnails.roblox.com/v1/games/multiget/thumbnails?universeIds=${UNIVERSE_ID}&countPerUniverse=1&size=768x432&format=Png&defaultMods=false`,
+	);
+	if (res.ok) {
+		const json = await res.json();
+		const url = json?.data?.[0]?.thumbnails?.[0]?.imageUrl;
+		if (url) bgImage = url;
+	}
+} catch {
+	// 네트워크 실패 시 폴백 URL 유지
+}
+---
+
+<html lang="ko">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/png" href="/favicon.png" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={ Astro.generator } />
+		<title>Sol's RNG Update Log Generator</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Sarpanch:wght@400;500;600;700;800;900&display=swap"
+			rel="stylesheet"
+		/>
+	</head>
+	<body>
+		<div class="bg-image" style={`background-image: url('${bgImage}')`} aria-hidden="true"></div>
+		<div class="bg-glow" aria-hidden="true"></div>
+		<div class="stars" aria-hidden="true"></div>
+		<div class="stars stars--slow" aria-hidden="true"></div>
+
+		<main>
+			<header class="hero">
+				<p class="eyebrow">SOL'S RNG</p>
+				<h1>Update Log Generator</h1>
+				<p class="subtitle">마크다운을 인게임 Luau 업데이트 로그로 변환합니다</p>
+			</header>
+
+			<Converter client:load />
+		</main>
+	</body>
+</html>
+
+<style is:global>
+	:root {
+		--bg: #0a0e1a;
+
+		/* 검정 반투명 배경 — 기본 박스 투명도 0.5 (= 알파 0.5) */
+		--panel-bg: rgba(0, 0, 0, 0.5);   /* 메인 창 */
+		--bar-bg:   rgba(0, 0, 0, 0.5);   /* 타이틀 바 */
+		--body-bg:  rgba(0, 0, 0, 0.5);   /* 콘텐츠 */
+
+		/* 흰색 반투명 테두리 (UIStroke: white, 1.5px, Transparency 0.5) */
+		--stroke:   rgba(255, 255, 255, 0.5);
+		--stroke-hi: rgba(255, 255, 255, 0.75);
+		--stroke-w: 1.5px;
+
+		--text: #ffffff;
+		--muted: #9a9a9a;
+
+		/* 코드용 폰트 (에디터 입력 = Luau 출력 동일) */
+		--code-font: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+
+		/* 무채색 액센트 */
+		--grad-gray: linear-gradient(180deg, #ffffff, #b8b8b8);
+		--accent-gray: #cfcfcf;
+
+		--radius-window: 0px;
+		--radius-inner: 0px;
+	}
+	
+/*Altro Fixed*/
+	* { box-sizing: border-box; }
+	html, body { margin: 0; padding: 10px; }
+	html { overflow: hidden; }
+
+
+	body {
+		min-height: 100vh;
+		font-family: "Sarpanch", sans-serif;
+		color: var(--text);
+		background:
+			radial-gradient(ellipse 70% 55% at 50% -8%, rgba(255, 255, 255, 0.10), transparent 60%),
+			radial-gradient(ellipse 55% 50% at 14% 30%, rgba(255, 255, 255, 0.05), transparent 60%),
+			radial-gradient(ellipse 55% 50% at 88% 32%, rgba(255, 255, 255, 0.05), transparent 60%),
+			var(--bg);
+		background-attachment: fixed;
+		overflow-x: hidden;
+	}
+
+	/* 게임 메인 썸네일 배경 (블러 처리) */
+	.bg-image {
+		position: fixed;
+		inset: -40px;
+		z-index: 0;
+		background-size: cover;
+		background-position: center;
+		filter: blur(16px) brightness(0.45) saturate(1.05);
+		transform: scale(1.08);
+		pointer-events: none;
+	}
+
+	/* 중앙 글로우 */
+	.bg-glow {
+		position: fixed;
+		inset: 0;
+		z-index: 0;
+		pointer-events: none;
+		background: radial-gradient(ellipse 65% 50% at 50% 40%, rgba(255, 255, 255, 0.07), transparent 70%);
+		filter: blur(10px);
+	}
+
+	/* 별 */
+	.stars, .stars--slow {
+		position: fixed;
+		inset: 0;
+		z-index: 0;
+		pointer-events: none;
+	}
+	.stars {
+		background-image:
+			radial-gradient(1.4px 1.4px at 12% 18%, #fff, transparent),
+			radial-gradient(1px 1px at 26% 62%, rgba(255, 255, 255, 0.85), transparent),
+			radial-gradient(1.2px 1.2px at 44% 28%, rgba(200, 220, 255, 0.9), transparent),
+			radial-gradient(1px 1px at 63% 74%, rgba(255, 255, 255, 0.7), transparent),
+			radial-gradient(1.5px 1.5px at 78% 38%, #fff, transparent),
+			radial-gradient(1px 1px at 88% 82%, rgba(220, 210, 255, 0.8), transparent),
+			radial-gradient(1px 1px at 8% 88%, rgba(255, 255, 255, 0.65), transparent);
+		animation: twinkle 4.5s ease-in-out infinite;
+	}
+	.stars--slow {
+		background-image:
+			radial-gradient(1px 1px at 34% 12%, rgba(255, 255, 255, 0.5), transparent),
+			radial-gradient(1.2px 1.2px at 55% 48%, rgba(180, 200, 255, 0.7), transparent),
+			radial-gradient(1px 1px at 70% 22%, rgba(255, 255, 255, 0.45), transparent),
+			radial-gradient(1.3px 1.3px at 92% 58%, rgba(255, 255, 255, 0.6), transparent),
+			radial-gradient(1px 1px at 18% 44%, rgba(255, 255, 255, 0.4), transparent);
+		animation: twinkle 7s ease-in-out infinite reverse;
+	}
+	@keyframes twinkle {
+		0%, 100% { opacity: 0.85; }
+		50% { opacity: 0.4; }
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.stars, .stars--slow { animation: none; }
+	}
+
+	main {
+		position: relative;
+		z-index: 1;
+		max-width: 1600px;
+		margin: 0 auto;
+		padding: clamp(1.5rem, 4vw, 3.5rem) clamp(1rem, 3vw, 2.5rem) 3rem;
+	}
+
+	/* ── hero (박스 형태) ── */
+	.hero {
+		position: relative;
+		text-align: center;
+		max-width: 760px;
+		margin: 0 auto clamp(1.5rem, 4vw, 2.5rem);
+		padding: clamp(1.1rem, 3vw, 1.6rem) clamp(1.5rem, 4vw, 2.5rem);
+		background: rgba(0, 0, 0, 0.8);   /* 타이틀 박스만 투명도 0.2 */
+		border: var(--stroke-w) solid var(--stroke);
+		backdrop-filter: blur(3px);
+		-webkit-backdrop-filter: blur(3px);
+		box-shadow: 0 12px 34px rgba(0, 0, 0, 0.45);
+	}
+	.eyebrow {
+		margin: 0 0 0.4rem;
+		font-size: 0.85rem;
+		font-weight: 600;
+		letter-spacing: 0.4em;
+		text-indent: 0.4em;
+		text-transform: uppercase;
+		color: var(--accent-gray);
+		text-shadow: 0 0 14px rgba(255, 255, 255, 0.35);
+	}
+	.hero h1 {
+		margin: 0;
+		font-weight: 700;
+		font-size: clamp(2rem, 5.5vw, 3.4rem);
+		letter-spacing: 0.01em;
+		background: linear-gradient(180deg, #ffffff 0%, #d8d8d8 55%, #b0b0b0 120%);
+		-webkit-background-clip: text;
+		background-clip: text;
+		color: transparent;
+		text-shadow: 0 2px 30px rgba(255, 255, 255, 0.22);
+	}
+	.hero .subtitle {
+		margin: 0.7rem 0 0;
+		font-size: clamp(0.85rem, 1.8vw, 1rem);
+		color: var(--muted);
+		font-weight: 400;
+	}
+
+	/* ── io grid ── */
+	.io-grid {
+		display: flex;
+		gap: clamp(0.9rem, 2.4vw, 1.5rem);
+		height: 72vh;
+		min-height: 420px;
+	}
+
+	/* 메인 창 = 검정 반투명 + 흰 테두리 + 둥근 모서리 + 섀도우 */
+	.panel {
+		position: relative;
+		flex: 1;
+		min-width: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		padding: 8px;
+		background: var(--panel-bg);
+		border: var(--stroke-w) solid var(--stroke);
+		border-radius: var(--radius-window);
+		box-shadow: 0 12px 34px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+		backdrop-filter: blur(3px);
+		-webkit-backdrop-filter: blur(3px);
+		transition: border-color 0.2s ease, box-shadow 0.2s ease;
+	}
+	.panel:hover {
+		border-color: var(--stroke-hi);
+		box-shadow: 0 14px 40px rgba(0, 0, 0, 0.6), 0 0 18px rgba(255, 255, 255, 0.12);
+	}
+
+	/* ── 코너 강조 브래킷 (모든 박스, 테두리 위 = middle) ── */
+	.hero::before,
+	.panel::before,
+	.panel-header::before,
+	.panel-body::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+		z-index: 5;
+		--arm: 7px;            /* 브래킷 길이 */
+		--ct: 1.5px;           /* 브래킷 두께 */
+		--cc: rgba(255, 255, 255, 0.9);
+		background-image:
+			linear-gradient(var(--cc), var(--cc)), linear-gradient(var(--cc), var(--cc)),
+			linear-gradient(var(--cc), var(--cc)), linear-gradient(var(--cc), var(--cc)),
+			linear-gradient(var(--cc), var(--cc)), linear-gradient(var(--cc), var(--cc)),
+			linear-gradient(var(--cc), var(--cc)), linear-gradient(var(--cc), var(--cc));
+		background-repeat: no-repeat;
+		background-size:
+			var(--arm) var(--ct), var(--ct) var(--arm),   /* top-left */
+			var(--arm) var(--ct), var(--ct) var(--arm),   /* top-right */
+			var(--arm) var(--ct), var(--ct) var(--arm),   /* bottom-left */
+			var(--arm) var(--ct), var(--ct) var(--arm);   /* bottom-right */
+		background-position:
+			left top, left top,
+			right top, right top,
+			left bottom, left bottom,
+			right bottom, right bottom;
+	}
+
+	/* ── 타이틀 바  ◀ TITLE ▶ ── */
+	.panel-header {
+		position: relative;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.55rem;
+		padding: 0.6rem 1rem;
+		background: var(--bar-bg);
+		border: var(--stroke-w) solid var(--stroke);
+		border-radius: var(--radius-inner);
+		font-weight: 600;
+		font-size: 1.05rem;
+		letter-spacing: 0.02em;
+	}
+	.arw {
+		font-size: 0.62em;
+		color: var(--accent);
+		filter: drop-shadow(0 0 6px var(--accent-soft));
+	}
+	.ph-label {
+		background: var(--grad);
+		-webkit-background-clip: text;
+		background-clip: text;
+		color: transparent;
+		filter: drop-shadow(0 1px 6px var(--accent-soft));
+	}
+
+	.panel--in,
+	.panel--out {
+		--accent: var(--accent-gray);
+		--accent-soft: rgba(255, 255, 255, 0.3);
+		--grad: var(--grad-gray);
+	}
+
+	/* 콘텐츠 프레임 */
+	.panel-body {
+		flex: 1;
+		min-height: 0;
+		position: relative;
+		background: var(--body-bg);
+		border: var(--stroke-w) solid var(--stroke);
+		border-radius: var(--radius-inner);
+		overflow: hidden;
+	}
+
+	/* CodeMirror host */
+	.cm-host { height: 100%; }
+
+	/* Luau 출력 */
+	/* Luau 출력 코드 박스: 원래의 코드 배경 (불투명) */
+	.luau-output {
+		height: 100%;
+		margin: 0;
+		padding: 0.9rem 1.1rem;
+		background: #2d2d2d;
+		color: #e2e6f0;
+		font-family: var(--code-font);
+		font-size: 13.5px;
+		line-height: 1.55;
+		overflow: auto;
+		scrollbar-width: none;
+		white-space: pre-wrap;
+	}
+	.luau-output::-webkit-scrollbar { display: none; }
+
+	.luau-loading {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		height: 100%;
+		color: var(--muted);
+		font-size: 0.95rem;
+		letter-spacing: 0.08em;
+	}
+
+	@media (max-width: 820px) {
+		.io-grid { flex-direction: column; height: auto; }
+		.panel { height: 56vh; }
+	}
+</style>

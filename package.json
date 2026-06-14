@@ -1,0 +1,29 @@
+{
+  "name": "srng-update-log",
+  "type": "module",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "wasm:build": "wasm-pack build crates/parser --target web && node -e \"require('fs').rmSync('crates/parser/pkg/.gitignore', { force: true })\""
+  },
+  "dependencies": {
+    "@astrojs/solid-js": "^6.0.1",
+    "@codemirror/lang-markdown": "^6.5.0",
+    "@codemirror/state": "^6.6.0",
+    "@codemirror/theme-one-dark": "^6.1.3",
+    "@codemirror/view": "^6.43.1",
+    "astro": "^6.4.6",
+    "codemirror": "^6.0.2",
+    "prismjs": "^1.30.0",
+    "solid-js": "^1.9.13"
+  },
+  "devDependencies": {
+    "@types/prismjs": "^1.26.6"
+  }
+}
